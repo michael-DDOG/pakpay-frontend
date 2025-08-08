@@ -1,1 +1,44 @@
-
+// src/i18n/translations/en.json
+{
+  "welcome": {
+    "title": "Send Money Easily",
+    "getStarted": "Get Started",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign In"
+  },
+  "registration": {
+    "enterPhone": "Enter Mobile Number",
+    "phoneHelper": "We'll send you a verification code",
+    "continue": "Continue",
+    "invalidPhone": "Please enter a valid Pakistani mobile number",
+    "otpSent": "OTP sent successfully",
+    "enterOTP": "Enter OTP",
+    "verify": "Verify",
+    "resendOTP": "Resend OTP"
+  },
+  "cnic": {
+    "title": "Verify Your CNIC",
+    "scan": "Scan CNIC",
+    "manual": "Or enter manually",
+    "placeholder": "XXXXX-XXXXXXX-X",
+    "verify": "Verify",
+    "invalid": "Please enter a valid CNIC number"
+  },
+  "dashboard": {
+    "goodMorning": "Good Morning",
+    "yourBalance": "Your Balance",
+    "send": "Send",
+    "receive": "Receive",
+    "recentTransactions": "Recent Transactions",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "showBalance": "Show",
+    "hideBalance": "Hide"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "pkr": "PKR"
+  }
+}
