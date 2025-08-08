@@ -1,1 +1,44 @@
-
+// src/i18n/translations/ur.json
+{
+  "welcome": {
+    "title": "پیسہ بھیجیں آسانی سے",
+    "getStarted": "شروع کریں",
+    "haveAccount": "پہلے سے اکاؤنٹ ہے؟",
+    "signIn": "سائن ان"
+  },
+  "registration": {
+    "enterPhone": "موبائل نمبر درج کریں",
+    "phoneHelper": "ہم آپ کو تصدیقی کوڈ بھیجیں گے",
+    "continue": "جاری رکھیں",
+    "invalidPhone": "براہ کرم درست پاکستانی موبائل نمبر درج کریں",
+    "otpSent": "OTP کامیابی سے بھیجا گیا",
+    "enterOTP": "OTP درج کریں",
+    "verify": "تصدیق کریں",
+    "resendOTP": "OTP دوبارہ بھیجیں"
+  },
+  "cnic": {
+    "title": "اپنے شناختی کارڈ کی تصدیق کریں",
+    "scan": "شناختی کارڈ سکین کریں",
+    "manual": "یا دستی طور پر درج کریں",
+    "placeholder": "XXXXX-XXXXXXX-X",
+    "verify": "تصدیق کریں",
+    "invalid": "براہ کرم درست شناختی کارڈ نمبر درج کریں"
+  },
+  "dashboard": {
+    "goodMorning": "صبح بخیر",
+    "yourBalance": "آپ کا بیلنس",
+    "send": "بھیجیں",
+    "receive": "وصول کریں",
+    "recentTransactions": "حالیہ لین دین",
+    "today": "آج",
+    "yesterday": "کل",
+    "showBalance": "دکھائیں",
+    "hideBalance": "چھپائیں"
+  },
+  "common": {
+    "loading": "لوڈ ہو رہا ہے...",
+    "error": "کچھ غلط ہو گیا",
+    "retry": "دوبارہ کوشش کریں",
+    "pkr": "PKR"
+  }
+}
