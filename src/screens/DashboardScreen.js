@@ -8,10 +8,11 @@ import {
   StatusBar,
   ScrollView,
   RefreshControl,
-  ActivityIndicator,
+  ActivityIndicator
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { colors } from '../styles/colors';
+import { typography } from '../styles/typography';
 import { walletService } from '../services/walletService';
 import AuthContext from '../context/AuthContext';
 import LanguageToggle from '../components/LanguageToggle';
@@ -19,7 +20,7 @@ import LanguageToggle from '../components/LanguageToggle';
 const DashboardScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const { userData, signOut } = useContext(AuthContext);
-
+  
   const [balance, setBalance] = useState(null);
   const [showBalance, setShowBalance] = useState(true);
   const [transactions, setTransactions] = useState([]);
@@ -34,11 +35,11 @@ const DashboardScreen = ({ navigation }) => {
     try {
       const [balanceData, transactionsData] = await Promise.all([
         walletService.getBalance(),
-        walletService.getTransactions(5, 0),
+        walletService.getTransactions(5, 0)
       ]);
-
-      setBalance(balanceData?.balance ?? null);
-      setTransactions(transactionsData?.transactions ?? []);
+      
+      setBalance(balanceData.balance);
+      setTransactions(transactionsData.transactions);
     } catch (error) {
       console.error('Load dashboard error:', error);
     } finally {
@@ -53,24 +54,32 @@ const DashboardScreen = ({ navigation }) => {
   };
 
   const formatAmount = (amount) => {
-    if (!showBalance) return '••••••';
-    if (amount == null || isNaN(Number(amount))) return `${t('common.pkr')} —`;
-    return `${t('common.pkr')} ${Number(amount).toLocaleString('en-PK')}`;
+    if (!showBalance) {
+      return '••••••';
+    }
+    return `${t('common.pkr')} ${parseFloat(amount).toLocaleString('en-PK')}`;
   };
 
-  const getTransactionSign = (tx) => (tx?.isSender ? '-' : '+');
+  const getTransactionSign = (transaction) => {
+    return transaction.isSender ? '-' : '+';
+  };
 
-  const getTransactionColor = (tx) => (tx?.isSender ? colors.error : colors.success);
+  const getTransactionColor = (transaction) => {
+    return transaction.isSender ? colors.error : colors.success;
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return '';
     const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) return t('dashboard.today');
-    if (date.toDateString() === yesterday.toDateString()) return t('dashboard.yesterday');
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return t('dashboard.today');
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return t('dashboard.yesterday');
+    }
+    
     return date.toLocaleDateString('en-PK');
   };
 
@@ -87,21 +96,22 @@ const DashboardScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
-
+      
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <TouchableOpacity onPress={() => console.log('Menu')}>
               <Text style={styles.menuIcon}>☰</Text>
             </TouchableOpacity>
-
+            
             <LanguageToggle />
-
+            
             <TouchableOpacity onPress={() => console.log('Notifications')}>
               <View style={styles.notificationIcon}>
                 <Text style={styles.bellIcon}>🔔</Text>
@@ -111,20 +121,19 @@ const DashboardScreen = ({ navigation }) => {
               </View>
             </TouchableOpacity>
           </View>
-
+          
           <Text style={styles.greeting}>
             {t('dashboard.goodMorning')}, {userData?.firstName || 'User'}
           </Text>
         </View>
 
-        {/* Balance */}
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>{t('dashboard.yourBalance')}</Text>
           <Text style={styles.balanceAmount}>{formatAmount(balance)}</Text>
-
+          
           <TouchableOpacity
             style={styles.toggleBalance}
-            onPress={() => setShowBalance((prev) => !prev)}
+            onPress={() => setShowBalance(!showBalance)}
           >
             <Text style={styles.toggleText}>
               👁 {showBalance ? t('dashboard.hideBalance') : t('dashboard.showBalance')}
@@ -132,16 +141,15 @@ const DashboardScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Actions */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Transfer')} activeOpacity={0.8}>
             <View style={styles.actionIconContainer}>
               <Text style={styles.actionIcon}>↗</Text>
             </View>
             <Text style={styles.actionText}>{t('dashboard.send')}</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
+          
+          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Remittance')} activeOpacity={0.8}>
             <View style={styles.actionIconContainer}>
               <Text style={styles.actionIcon}>↙</Text>
             </View>
@@ -149,34 +157,50 @@ const DashboardScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Transactions */}
         <View style={styles.transactionsSection}>
           <Text style={styles.sectionTitle}>{t('dashboard.recentTransactions')}</Text>
-
-          {transactions && transactions.length > 0 ? (
-            transactions.map((tx) => (
-              <TouchableOpacity key={tx.id} style={styles.transactionItem} activeOpacity={0.7}>
+          
+          {transactions.length > 0 ? (
+            transactions.map((transaction) => (
+              <TouchableOpacity
+                key={transaction.id}
+                style={styles.transactionItem}
+                activeOpacity={0.7}
+              >
                 <View style={styles.transactionLeft}>
-                  <Text style={styles.transactionSign}>{getTransactionSign(tx)}</Text>
+                  <Text style={styles.transactionSign}>
+                    {getTransactionSign(transaction)}
+                  </Text>
                   <View>
-                    <Text style={styles.transactionName}>{tx.counterparty}</Text>
-                    <Text style={styles.transactionDate}>{formatDate(tx.createdAt)}</Text>
+                    <Text style={styles.transactionName}>
+                      {transaction.counterparty}
+                    </Text>
+                    <Text style={styles.transactionDate}>
+                      {formatDate(transaction.createdAt)}
+                    </Text>
                   </View>
                 </View>
-
-                <Text style={[styles.transactionAmount, { color: getTransactionColor(tx) }]}>
-                  {getTransactionSign(tx)} {t('common.pkr')} {Number(tx.amount).toLocaleString('en-PK')}
+                
+                <Text
+                  style={[
+                    styles.transactionAmount,
+                    { color: getTransactionColor(transaction) }
+                  ]}
+                >
+                  {getTransactionSign(transaction)} {t('common.pkr')} {transaction.amount}
                 </Text>
               </TouchableOpacity>
             ))
           ) : (
-            <Text style={styles.noTransactions}>{t('dashboard.noRecentTransactions') || 'No recent transactions'}</Text>
+            <Text style={styles.noTransactions}>{t('dashboard.noTransactions', 'No recent transactions')}</Text>
           )}
         </View>
 
-        {/* Sign out */}
-        <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
-          <Text style={styles.signOutText}>{t('common.signOut') || 'Sign out'}</Text>
+        <TouchableOpacity
+          style={styles.signOutButton}
+          onPress={signOut}
+        >
+          <Text style={styles.signOutText}>{t('common.signOut', 'Sign Out (Dev)')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -186,174 +210,181 @@ const DashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors?.background || '#FFFFFF',
+    backgroundColor: colors.background
   },
   loadingContainer: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center'
   },
   content: {
-    paddingHorizontal: 16,
+    flex: 1
   },
   header: {
-    marginTop: 8,
-    marginBottom: 16,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    marginBottom: 24
   },
   headerTop: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16
   },
   menuIcon: {
-    fontSize: 22,
+    fontSize: 24,
+    color: colors.text
   },
   notificationIcon: {
-    position: 'relative',
-    padding: 6,
+    position: 'relative'
   },
   bellIcon: {
-    fontSize: 20,
+    fontSize: 24
   },
   notificationBadge: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: colors?.error || '#E63946',
-    alignItems: 'center',
+    top: -5,
+    right: -5,
+    backgroundColor: colors.error,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
     justifyContent: 'center',
-    paddingHorizontal: 3,
+    alignItems: 'center'
   },
   badgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '600',
+    color: colors.secondary,
+    fontSize: 12,
+    fontWeight: 'bold'
   },
   greeting: {
-    marginTop: 12,
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors?.textPrimary || '#111',
+    ...typography.h2,
+    color: colors.text
   },
   balanceCard: {
-    backgroundColor: colors?.card || '#F6F7FB',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: colors.primary,
+    marginHorizontal: 24,
+    marginBottom: 24,
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center'
   },
   balanceLabel: {
-    fontSize: 14,
-    color: colors?.textSecondary || '#666',
-    marginBottom: 6,
+    ...typography.body,
+    color: colors.secondary,
+    opacity: 0.9,
+    marginBottom: 8
   },
   balanceAmount: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: colors?.textPrimary || '#111',
+    ...typography.h1,
+    color: colors.secondary,
+    fontWeight: 'bold',
+    marginBottom: 16
   },
   toggleBalance: {
-    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 16
   },
   toggleText: {
-    fontSize: 14,
-    color: colors?.primary || '#0A84FF',
-    fontWeight: '600',
+    ...typography.caption,
+    color: colors.secondary
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 18,
+    paddingHorizontal: 24,
+    marginBottom: 32,
+    justifyContent: 'space-between'
   },
   actionButton: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.secondary,
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: 20,
     alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 1,
+    marginHorizontal: 8,
+    elevation: 2,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4
   },
   actionIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors?.primaryLight || '#E8F1FF',
-    alignItems: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.background,
     justifyContent: 'center',
-    marginBottom: 8,
+    alignItems: 'center',
+    marginBottom: 8
   },
   actionIcon: {
-    fontSize: 18,
+    fontSize: 24,
+    color: colors.primary
   },
   actionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors?.textPrimary || '#111',
+    ...typography.body,
+    color: colors.text,
+    fontWeight: '600'
   },
   transactionsSection: {
-    marginTop: 8,
-    marginBottom: 24,
+    paddingHorizontal: 24,
+    marginBottom: 24
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 10,
-    color: colors?.textPrimary || '#111',
+    ...typography.body,
+    color: colors.textSecondary,
+    fontWeight: '600',
+    marginBottom: 16
   },
   transactionItem: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    elevation: 1,
+    alignItems: 'center',
+    backgroundColor: colors.secondary,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12
   },
   transactionLeft: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+    alignItems: 'center'
   },
   transactionSign: {
-    width: 22,
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 20,
+    marginRight: 12,
+    fontWeight: 'bold'
   },
   transactionName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors?.textPrimary || '#111',
+    ...typography.body,
+    color: colors.text,
+    fontWeight: '500'
   },
   transactionDate: {
-    fontSize: 12,
-    color: colors?.textSecondary || '#666',
-    marginTop: 2,
+    ...typography.caption,
+    color: colors.textSecondary
   },
   transactionAmount: {
-    fontSize: 15,
-    fontWeight: '700',
+    ...typography.body,
+    fontWeight: 'bold'
   },
   noTransactions: {
-    fontSize: 14,
-    color: colors?.textSecondary || '#666',
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingVertical: 32
   },
   signOutButton: {
-    backgroundColor: colors?.error || '#E63946',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
+    marginHorizontal: 24,
     marginBottom: 24,
+    padding: 16,
+    backgroundColor: colors.error,
+    borderRadius: 8,
+    alignItems: 'center'
   },
   signOutText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-  },
+    color: colors.secondary,
+    fontWeight: 'bold'
+  }
 });
 
 export default DashboardScreen;
