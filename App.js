@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import 'intl-pluralrules';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -10,12 +8,15 @@ import i18n from './src/i18n/config';
 import AuthContext from './src/context/AuthContext';
 import api from './src/services/api';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import 'intl-pluralrules'; // Polyfill for i18next pluralization
 
 // Screens
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import PhoneRegistrationScreen from './src/screens/PhoneRegistrationScreen';
 import CNICVerificationScreen from './src/screens/CNICVerificationScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
+import TransferScreen from './src/screens/TransferScreen';
+import RemittanceScreen from './src/screens/RemittanceScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -73,12 +74,7 @@ export default function App() {
   };
 
   if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#00A86B" />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
+    return null; // Add splash screen here
   }
 
   return (
@@ -96,6 +92,8 @@ export default function App() {
                 {userToken ? (
                   <>
                     <Stack.Screen name="Dashboard" component={DashboardScreen} />
+                    <Stack.Screen name="Transfer" component={TransferScreen} />
+                    <Stack.Screen name="Remittance" component={RemittanceScreen} />
                   </>
                 ) : (
                   <>
@@ -112,17 +110,3 @@ export default function App() {
     </I18nextProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5'
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666666'
-  }
-});
