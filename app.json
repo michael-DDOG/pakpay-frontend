@@ -1,16 +1,16 @@
-// app.json
 {
   "expo": {
     "name": "PakistanFintechApp",
     "slug": "PakistanFintechApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "pakistanfintechapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to scan your CNIC for verification."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,11 +21,9 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "output": "static"
     },
     "plugins": [
-      "expo-router",
       [
         "expo-splash-screen",
         {

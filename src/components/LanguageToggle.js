@@ -1,9 +1,9 @@
 // src/components/LanguageToggle.js
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, I18nManager, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import RNRestart from 'react-native-restart';
+// REMOVED: import RNRestart from 'react-native-restart';
 import { colors } from '../styles/colors';
 
 const LanguageToggle = () => {
@@ -16,11 +16,19 @@ const LanguageToggle = () => {
     await AsyncStorage.setItem('language', newLanguage);
     
     // For RTL support
-    I18nManager.forceRTL(newLanguage === 'ur');
-    I18nManager.allowRTL(newLanguage === 'ur');
-    
-    // Restart app to apply RTL changes (only needed once)
-    // RNRestart.Restart();
+    const isRTL = newLanguage === 'ur';
+    if (I18nManager.isRTL !== isRTL) {
+      I18nManager.forceRTL(isRTL);
+      I18nManager.allowRTL(isRTL);
+      
+      // In Expo Go, we can't restart the app programmatically
+      // Show a message to the user instead
+      Alert.alert(
+        'Language Changed',
+        'Please restart the app for RTL layout changes to take effect.',
+        [{ text: 'OK' }]
+      );
+    }
   };
 
   return (
